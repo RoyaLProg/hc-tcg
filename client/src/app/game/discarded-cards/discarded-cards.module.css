@@ -1,0 +1,27 @@
+.wrapper {
+	max-width: 650px;
+}
+
+.options {
+	text-align: center;
+	padding: 10px;
+}
+
+.options button + button {
+	margin-left: 5px;
+}
+
+.cards {
+	padding: 5px;
+	max-height: 400px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.discardedButton {
+	display: inline-block;
+	margin: 5px;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}

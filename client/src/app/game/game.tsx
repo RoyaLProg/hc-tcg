@@ -16,6 +16,7 @@ import UnmetCondition from './modals/unmet-condition-modal'
 import MouseIndicator from './mouse-indicator'
 import EndGameOverlay from './end-game-overlay'
 import Chat from './chat'
+import DiscardedCards from './discarded-cards'
 import {
 	getGameState,
 	getSelectedCard,
@@ -124,6 +125,7 @@ function Game() {
 					picked={pickedCardsInstances}
 				/>
 			</div>
+			<DiscardedCards />
 			{renderModal(openedModal, handleOpenModal)}
 			{pickProcess ? (
 				<MouseIndicator message={getPickProcessMessage(pickProcess)} />
@@ -139,7 +141,6 @@ function Game() {
 
 			<SoundButton />
 			<Chat />
-
 			{showForfeit && <ForfeitModal closeModal={() => setShowForfeit(false)} />}
 
 			{endGameOverlay && <EndGameOverlay reason={endGameOverlay} />}
