@@ -372,11 +372,13 @@ function* turnActionsSaga(game, pastTurnActions) {
 				pastTurnActions,
 			}
 			game._turnStateCache = turnState
-			yield call(sendGameState, game, turnState)
 
 			const maxTime = config.limits.maxTurnTime * 1000
 			const remainingTime = game.state.turnTime + maxTime - Date.now()
 			const graceTime = 1000
+			game.state.turnRemaining = Math.floor((remainingTime + 1000) / 1000)
+
+			yield call(sendGameState, game, turnState)
 
 			const raceResult = yield race({
 				turnAction: take(turnActionChannel),
@@ -392,6 +394,7 @@ function* turnActionsSaga(game, pastTurnActions) {
 					game.hooks.followUpTimeout.call()
 					continue
 				} else if (!hasActiveHermit) {
+					game.endInfo.reason = 'time'
 					game.endInfo.deadPlayerIds = [currentPlayer.id]
 					return 'GAME_END'
 				}
@@ -430,6 +433,7 @@ function* turnSaga(game) {
 
 	game.state.turnPlayerId = currentPlayerId
 	game.state.turnTime = Date.now()
+	game.state.turnRemaining = config.limits.maxTurnTime
 
 	// ailment logic
 	for (let row of currentPlayer.board.rows) {
@@ -469,6 +473,8 @@ function* turnSaga(game) {
 
 	const deadPlayerIds = yield call(checkHermitHealth, game)
 	if (deadPlayerIds.length) {
+		game.endInfo.reason =
+			game.state.players[deadPlayerIds[0]].lives <= 0 ? 'lives' : 'hermits'
 		game.endInfo.deadPlayerIds = deadPlayerIds
 		return 'GAME_END'
 	}
@@ -482,6 +488,7 @@ function* turnSaga(game) {
 			noCards: true,
 			turn: game.state.turn,
 		})
+		game.endInfo.reason = 'cards'
 		game.endInfo.deadPlayerIds = [currentPlayerId]
 		return 'GAME_END'
 	}
